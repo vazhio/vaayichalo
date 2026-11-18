@@ -9,6 +9,8 @@
   const TZ = 'Asia/Kolkata';
   const KEY_READ = 'ar:read';    // { "2026-11-18": ["poem","essay"], ... }
   const KEY_START = 'ar:start';  // "2026-11-18"
+  const KEY_PREFS = 'ar:reader-prefs';
+  const DEFAULT_PREFS = { size: 1.16, leading: 2.05, theme: 'paper' };
   const TYPES = ['poem', 'essay', 'story'];
   const LABEL = { poem: 'കവിത', essay: 'ലേഖനം', story: 'കഥ' };
   const ARCHIVE_PAGE = 14;
@@ -58,7 +60,27 @@
 
   /* ---------- texts ---------- */
   function parseText(raw) {
-    raw = raw.replace(/^﻿/, '').replace(/\r\n?/g, '\n');
+    raw = raw.replace(/^﻿/, '').replace(/\r
+  function getPrefs() {
+    const p = store.get(KEY_PREFS, {});
+    return { size: Math.min(1.5, Math.max(.95, Number(p.size) || DEFAULT_PREFS.size)),
+      leading: Math.min(2.5, Math.max(1.6, Number(p.leading) || DEFAULT_PREFS.leading)),
+      theme: ['paper','dark'].includes(p.theme) ? p.theme : 'paper' };
+  }
+  function applyPrefs() {
+    const p=getPrefs();
+    document.documentElement.style.setProperty('--read-size',p.size+'rem');
+    document.documentElement.style.setProperty('--read-leading',p.leading);
+    document.body.dataset.theme=p.theme;
+    const meta=document.querySelector('meta[name="theme-color"]');
+    if(meta) meta.content=p.theme==='dark'?'#191a17':'#f4efe4';
+  }
+  function updatePrefs(change){store.set(KEY_PREFS,{...getPrefs(),...change});applyPrefs();}
+  function updateReadingProgress(){
+    const bar=document.getElementById('readingProgress'); if(!bar)return;
+    const max=document.documentElement.scrollHeight-window.innerHeight;
+    bar.style.width = (max>0?Math.min(100,Math.max(0,window.scrollY/max*100)):0)+'%';
+  }\n?/g, '\n');
     const cut = raw.indexOf('\n---\n');
     const head = cut >= 0 ? raw.slice(0, cut) : '';
     const meta = {};
@@ -155,8 +177,8 @@
 
     let html = '<h1 class="date">' + esc(fmtLong(date)) + '</h1>';
     html += '<p class="dayline">' + (isToday ? 'ഇന്നത്തെ വായന' : 'പഴയ ദിവസത്തെ വായന') + ' · പ്രസിദ്ധീകരണത്തിന്റെ ' + num(idx + 1) + '-ാം ദിവസം</p>';
+    html += '<section class="reader-tools" aria-label="വായനാ ക്രമീകരണങ്ങൾ"><div class="tool-group"><span class="tool-label">അക്ഷരവലുപ്പം</span><button type="button" data-size-down aria-label="അക്ഷരം ചെറുതാക്കുക">A−</button><button type="button" data-size-up aria-label="അക്ഷരം വലുതാക്കുക">A+</button><button type="button" data-leading>വരി അകലം</button></div><div class="tool-group"><button type="button" data-theme>നിറം മാറ്റുക</button><button type="button" data-focus>ശ്രദ്ധയോടെ വായിക്കുക</button><button type="button" data-focus-exit hidden>സാധാരണ കാഴ്ച</button></div></section>';
     if (isToday) html += '<section class="panel" id="panel" aria-live="polite"></section>';
-
     html += '<ol class="readings">';
     TYPES.forEach((type, i) => {
       const t = texts[i];
@@ -202,12 +224,22 @@
   }
 
   function wireDay(date, texts) {
+    const toolbar=main.querySelector('.reader-tools');
+    toolbar.querySelector('[data-size-down]').addEventListener('click',()=>updatePrefs({size:Math.max(.95,getPrefs().size-.08)}));
+    toolbar.querySelector('[data-size-up]').addEventListener('click',()=>updatePrefs({size:Math.min(1.5,getPrefs().size+.08)}));
+    toolbar.querySelector('[data-leading]').addEventListener('click',()=>updatePrefs({leading:getPrefs().leading>=2.3?1.8:+(getPrefs().leading+.15).toFixed(2)}));
+    toolbar.querySelector('[data-theme]').addEventListener('click',()=>updatePrefs({theme:getPrefs().theme==='paper'?'dark':'paper'}));
+    const focusOff=()=>{document.body.classList.remove('focus-mode');main.querySelectorAll('.reading').forEach(el=>el.classList.remove('is-focused'));toolbar.querySelector('[data-focus]').hidden=false;toolbar.querySelector('[data-focus-exit]').hidden=true;};
+    toolbar.querySelector('[data-focus]').addEventListener('click',()=>{document.body.classList.add('focus-mode');toolbar.querySelector('[data-focus]').hidden=true;toolbar.querySelector('[data-focus-exit]').hidden=false;});
+    toolbar.querySelector('[data-focus-exit]').addEventListener('click',focusOff);
     const open = (type, show) => {
       const box = document.getElementById('text-' + type);
       const btn = main.querySelector('[data-open="' + type + '"]');
       box.hidden = !show;
       btn.setAttribute('aria-expanded', String(show));
       btn.textContent = show ? 'ചുരുക്കുക' : 'വായിക്കാം';
+      if(show&&document.body.classList.contains('focus-mode'))main.querySelectorAll('.reading').forEach(el=>el.classList.toggle('is-focused',el.id==='r-'+type));
+      if(!show&&document.body.classList.contains('focus-mode'))focusOff();
     };
     main.querySelectorAll('[data-open]').forEach(b => b.addEventListener('click', () => open(b.dataset.open, b.getAttribute('aria-expanded') !== 'true')));
     main.querySelectorAll('[data-close]').forEach(b => b.addEventListener('click', () => {
@@ -400,10 +432,13 @@
     document.getElementById('siteName').textContent = LIB.siteName;
     document.getElementById('tagline').textContent = LIB.tagline;
     document.title = LIB.siteName;
-    window.addEventListener('hashchange', route);
+    applyPrefs();
+    window.addEventListener('scroll', updateReadingProgress, {passive:true});
+    window.addEventListener('resize', updateReadingProgress);
+    window.addEventListener('hashchange',()=>{document.body.classList.remove('focus-mode');route();});
     // If the tab stays open past midnight, show the new day's readings when the reader comes back.
     document.addEventListener('visibilitychange', () => { if (!document.hidden && renderedFor && renderedFor !== todayISO()) route(); });
-    route();
+    route().then(updateReadingProgress);
   }
 
   init();
