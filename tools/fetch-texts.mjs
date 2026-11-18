@@ -102,7 +102,8 @@ for (const m of manifest) {
   }
 }
 
-await writeFile('tools/fetch-report.json', JSON.stringify(report, null, 1) + '\n');
+// Only rewrite the report when something changed, so routine runs don't create commits.
+if (report.written.length || report.failed.length) await writeFile('tools/fetch-report.json', JSON.stringify(report, null, 1) + '\n');
 console.log(`written ${report.written.length}, skipped ${report.skipped.length}, mismatched ${report.mismatched.length}, failed ${report.failed.length}`);
 if (report.mismatched.length) console.log('Mismatched:', JSON.stringify(report.mismatched));
 if (report.failed.length) { console.log('Failed (will be retried on the next run):', JSON.stringify(report.failed)); console.log('::warning::' + report.failed.length + ' texts could not be downloaded this time'); }
