@@ -75,7 +75,7 @@
     return {
       size: Math.min(1.5, Math.max(.95, Number(p.size) || DEFAULT_PREFS.size)),
       leading: Math.min(2.5, Math.max(1.6, Number(p.leading) || DEFAULT_PREFS.leading)),
-      theme: ['paper', 'dark'].includes(p.theme) ? p.theme : 'paper'
+      theme: ['paper', 'dark'].includes(p.theme) ? p.theme : (window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'paper')
     };
   }
   function applyPrefs() {
@@ -85,6 +85,53 @@
     document.body.dataset.theme = p.theme;
     const meta = document.querySelector('meta[name="theme-color"]');
     if (meta) meta.content = p.theme === 'dark' ? '#191a17' : '#f4efe4';
+    const tb = document.getElementById('themeBtn');
+    if (tb) {
+      const dark = p.theme === 'dark';
+      tb.innerHTML = '<span aria-hidden="true">' + (dark ? '☀' : '☾') + '</span> ' + (dark ? 'വെട്ടത്തിൽ വായിക്കാം' : 'ഇരുട്ടിൽ വായിക്കാം');
+      tb.setAttribute('aria-pressed', String(dark));
+    }
+  }
+
+  /* ---------- floating reading widgets ----------
+     #fontWidget (bottom right): font size, line spacing and the focus-mode chip.
+     It only appears while a poem, essay or story is open on a day page.
+     #themeBtn (bottom left): dark / light mode, always available. */
+  let reader = null; // set by wireDay: { open(type, show), lastOpened }
+  function anyTextOpen() {
+    return TYPES.some(t => { const b = document.getElementById('text-' + t); return b && !b.hidden; });
+  }
+  function syncFontWidget() {
+    const w = document.getElementById('fontWidget');
+    if (w) w.hidden = !(reader && anyTextOpen());
+  }
+  function setFocusChip(on) {
+    const f = document.getElementById('focusBtn');
+    if (!f) return;
+    f.setAttribute('aria-pressed', String(on));
+    f.textContent = on ? 'സാധാരണ കാഴ്ച' : 'ശ്രദ്ധയോടെ വായിക്കുക';
+  }
+  function focusOff() {
+    document.body.classList.remove('focus-mode');
+    main.querySelectorAll('.reading').forEach(el => el.classList.remove('is-focused'));
+    setFocusChip(false);
+  }
+  function focusOn(type) {
+    if (!type) return;
+    document.body.classList.add('focus-mode');
+    main.querySelectorAll('.reading').forEach(el => el.classList.toggle('is-focused', el.id === 'r-' + type));
+    setFocusChip(true);
+    document.getElementById('r-' + type).scrollIntoView({ block: 'start' });
+  }
+  function wireWidgets() {
+    document.getElementById('sizeDown').addEventListener('click', () => updatePrefs({ size: Math.max(.95, +(getPrefs().size - .08).toFixed(2)) }));
+    document.getElementById('sizeUp').addEventListener('click', () => updatePrefs({ size: Math.min(1.5, +(getPrefs().size + .08).toFixed(2)) }));
+    document.getElementById('leading').addEventListener('click', () => updatePrefs({ leading: getPrefs().leading >= 2.3 ? 1.8 : +(getPrefs().leading + .15).toFixed(2) }));
+    document.getElementById('themeBtn').addEventListener('click', () => updatePrefs({ theme: getPrefs().theme === 'dark' ? 'paper' : 'dark' }));
+    document.getElementById('focusBtn').addEventListener('click', () => {
+      if (document.body.classList.contains('focus-mode')) focusOff();
+      else if (reader) focusOn(reader.lastOpened || TYPES.find(t => !document.getElementById('text-' + t).hidden));
+    });
   }
   function updatePrefs(change) {
     store.set(KEY_PREFS, { ...getPrefs(), ...change });
@@ -99,7 +146,7 @@
 
   function loadText(id) {
     if (!cache.has(id)) {
-      cache.set(id, fetch('/content/texts/' + encodeURIComponent(id) + '.txt', { cache: 'no-cache' })
+      cache.set(id, fetch('content/texts/' + encodeURIComponent(id) + '.txt', { cache: 'no-cache' })
         .then(r => { if (!r.ok) throw new Error('missing ' + id); return r.text(); })
         .then(t => ({ id, ...parseText(t) }))
         .catch(() => ({ id, title: id, author: '', type: '', body: 'ഈ പാഠം കണ്ടെത്താനായില്ല (content/texts/' + id + '.txt).' })));
@@ -186,7 +233,6 @@
 
     let html = '<h1 class="date">' + esc(fmtLong(date)) + '</h1>';
     html += '<p class="dayline">' + (isToday ? 'ഇന്നത്തെ വായന' : 'പഴയ ദിവസത്തെ വായന') + ' · പ്രസിദ്ധീകരണത്തിന്റെ ' + num(idx + 1) + '-ാം ദിവസം</p>';
-    html += '<section class="reader-tools" aria-label="വായനാ ക്രമീകരണങ്ങൾ"><div class="tool-group"><span class="tool-label">അക്ഷരവലുപ്പം</span><button type="button" data-size-down aria-label="അക്ഷരം ചെറുതാക്കുക">A−</button><button type="button" data-size-up aria-label="അക്ഷരം വലുതാക്കുക">A+</button><button type="button" data-leading>വരി അകലം</button></div><div class="tool-group"><button type="button" data-theme>നിറം മാറ്റുക</button><button type="button" data-focus>ശ്രദ്ധയോടെ വായിക്കുക</button><button type="button" data-focus-exit hidden>സാധാരണ കാഴ്ച</button></div></section>';
     if (isToday) html += '<section class="panel" id="panel" aria-live="polite"></section>';
     html += '<ol class="readings">';
     TYPES.forEach((type, i) => {
@@ -233,28 +279,21 @@
   }
 
   function wireDay(date, texts) {
-    const toolbar=main.querySelector('.reader-tools');
-    toolbar.querySelector('[data-size-down]').addEventListener('click',()=>updatePrefs({size:Math.max(.95,getPrefs().size-.08)}));
-    toolbar.querySelector('[data-size-up]').addEventListener('click',()=>updatePrefs({size:Math.min(1.5,getPrefs().size+.08)}));
-    toolbar.querySelector('[data-leading]').addEventListener('click',()=>updatePrefs({leading:getPrefs().leading>=2.3?1.8:+(getPrefs().leading+.15).toFixed(2)}));
-    toolbar.querySelector('[data-theme]').addEventListener('click',()=>updatePrefs({theme:getPrefs().theme==='paper'?'dark':'paper'}));
-    const focusOff=()=>{document.body.classList.remove('focus-mode');main.querySelectorAll('.reading').forEach(el=>el.classList.remove('is-focused'));toolbar.querySelector('[data-focus]').hidden=false;toolbar.querySelector('[data-focus-exit]').hidden=true;};
-    toolbar.querySelector('[data-focus]').addEventListener('click',()=>{
-      document.body.classList.add('focus-mode');
-      toolbar.querySelector('[data-focus]').hidden=true;
-      toolbar.querySelector('[data-focus-exit]').hidden=false;
-      open(TYPES[0],true);
-    });
-    toolbar.querySelector('[data-focus-exit]').addEventListener('click',focusOff);
     const open = (type, show) => {
       const box = document.getElementById('text-' + type);
       const btn = main.querySelector('[data-open="' + type + '"]');
       box.hidden = !show;
       btn.setAttribute('aria-expanded', String(show));
       btn.textContent = show ? 'ചുരുക്കുക' : 'വായിക്കാം';
-      if(show&&document.body.classList.contains('focus-mode'))main.querySelectorAll('.reading').forEach(el=>el.classList.toggle('is-focused',el.id==='r-'+type));
-      if(!show&&document.body.classList.contains('focus-mode'))focusOff();
+      if (show) reader.lastOpened = type;
+      else if (reader.lastOpened === type) reader.lastOpened = TYPES.find(t => !document.getElementById('text-' + t).hidden) || null;
+      if (document.body.classList.contains('focus-mode')) {
+        if (show) focusOn(type); else focusOff();
+      }
+      syncFontWidget();
     };
+    reader = { open, lastOpened: null };
+    syncFontWidget();
     main.querySelectorAll('[data-open]').forEach(b => b.addEventListener('click', () => open(b.dataset.open, b.getAttribute('aria-expanded') !== 'true')));
     main.querySelectorAll('[data-close]').forEach(b => b.addEventListener('click', () => {
       open(b.dataset.close, false);
@@ -421,6 +460,9 @@
   /* ---------- router ---------- */
   async function route() {
     const h = location.hash.slice(1) || 'today';
+    reader = null;
+    focusOff();
+    syncFontWidget();
     const m = h.match(/^d-(\d{4}-\d{2}-\d{2})$/);
     try {
       if (h === 'archive') await renderArchive();
@@ -437,8 +479,8 @@
 
   async function init() {
     try {
-      LIB = await fetch('/content/library.json', { cache: 'no-cache' }).then(r => { if (!r.ok) throw new Error('library.json HTTP ' + r.status); return r.json(); });
-      ALANKARAM = await fetch('/content/alankaram.json', { cache: 'no-cache' }).then(r => r.ok ? r.json() : []).catch(() => []);
+      LIB = await fetch('content/library.json', { cache: 'no-cache' }).then(r => { if (!r.ok) throw new Error('library.json HTTP ' + r.status); return r.json(); });
+      ALANKARAM = await fetch('content/alankaram.json', { cache: 'no-cache' }).then(r => r.ok ? r.json() : []).catch(() => []);
     } catch (e) {
       main.innerHTML = '<p class="muted">content/library.json വായിക്കാനായില്ല. README.md നോക്കുക.</p>';
       return;
@@ -447,9 +489,10 @@
     document.getElementById('tagline').textContent = LIB.tagline;
     document.title = LIB.siteName;
     applyPrefs();
+    wireWidgets();
     window.addEventListener('scroll', updateReadingProgress, {passive:true});
     window.addEventListener('resize', updateReadingProgress);
-    window.addEventListener('hashchange',()=>{document.body.classList.remove('focus-mode');route();});
+    window.addEventListener('hashchange', route);
     // If the tab stays open past midnight, show the new day's readings when the reader comes back.
     document.addEventListener('visibilitychange', () => { if (!document.hidden && renderedFor && renderedFor !== todayISO()) route(); });
     route().then(updateReadingProgress);

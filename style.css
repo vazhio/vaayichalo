@@ -251,6 +251,22 @@ body[data-theme="dark"] .reading:nth-child(odd){background:rgba(255,255,255,.018
 .reader-tools button:hover{color:var(--accent);border-color:var(--accent)}.reader-tools .tool-label{color:var(--ink-2);font-size:.8rem}
 .archive a{border-radius:5px}.archive a:hover{background:var(--paper-2)}.dot.full{background:var(--story);border-color:var(--story)}.footer-note{font-family:var(--read)}
 body.focus-mode .masthead,body.focus-mode .footer,body.focus-mode .dayline,body.focus-mode #panel,body.focus-mode .extra,body.focus-mode .share,body.focus-mode .reading:not(.is-focused){display:none!important}
-body.focus-mode main{padding-top:1.5rem}body.focus-mode .reading.is-focused{border:0;background:transparent;padding:1rem 0}body.focus-mode .reader-tools{position:sticky;top:3px;z-index:5}
+body.focus-mode main{padding-top:1.5rem}body.focus-mode .reading.is-focused{border:0;background:transparent;padding:1rem 0}
 @media(max-width:640px){main{padding:1.8rem 1rem 3rem}.reader-tools .tool-group{width:100%}.reading{padding:1.25rem .85rem}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;transition:none!important}}
+
+/* Floating reading widgets */
+.font-widget{position:fixed;right:max(1rem,env(safe-area-inset-right));bottom:max(1rem,env(safe-area-inset-bottom));z-index:30;display:flex;flex-direction:column;align-items:flex-end;gap:.45rem}
+.font-widget[hidden]{display:none}
+.font-pill{display:flex;background:var(--surface);border:1px solid var(--hair);border-radius:999px;box-shadow:0 6px 20px rgba(0,0,0,.13);overflow:hidden}
+.font-pill button{border:0;background:transparent;color:var(--ink);min-width:2.75rem;min-height:2.75rem;padding:0 .75rem;font:inherit;font-size:.88rem;cursor:pointer}
+.font-pill button+button{border-left:1px solid var(--hair)}
+.font-pill button:hover{color:var(--accent)}
+.focus-chip,.theme-widget{font:inherit;font-size:.8rem;min-height:2.5rem;padding:.3rem .95rem;border-radius:999px;border:1px solid var(--hair);background:var(--surface);color:var(--ink);box-shadow:0 6px 20px rgba(0,0,0,.13);cursor:pointer}
+.focus-chip:hover,.theme-widget:hover{color:var(--accent);border-color:var(--accent)}
+.focus-chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--paper)}
+.theme-widget{position:fixed;left:max(1rem,env(safe-area-inset-left));bottom:max(1rem,env(safe-area-inset-bottom));z-index:30}
+.theme-widget span{font-size:1rem;margin-right:.15rem}
+.footer{padding-bottom:5.5rem}
+body.focus-mode main{padding-bottom:7rem}
+@media(max-width:420px){.font-pill button{min-width:2.5rem;padding:0 .55rem;font-size:.82rem}.focus-chip,.theme-widget{font-size:.76rem;padding:.3rem .75rem}}

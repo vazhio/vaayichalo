@@ -6,7 +6,7 @@
 <meta name="color-scheme" content="light dark">
 <meta name="theme-color" content="#f4efe4">
 <title>വായിച്ചാലോ?</title>
-<meta name="description" content="ഒരു കവിത, ഒരു ലേഖനം, ഒരു കഥ — എല്ലാ ദിവസവും.">
+<meta name="description" content="ദിവസവും ഒരു കവിത, ഒരു ലേഖനം, ഒരു കഥ.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%239b2c2c'/%3E%3Ctext x='16' y='23' font-size='18' text-anchor='middle' fill='%23fffdf8' font-family='serif'%3E%E0%B4%86%3C/text%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -18,7 +18,7 @@
 <div class="reading-progress" aria-hidden="true"><span id="readingProgress"></span></div>
 <header class="masthead">
   <a class="brand" href="#today" id="siteName">വായിച്ചാലോ?</a>
-  <p class="tagline" id="tagline">ഒരു കവിത, ഒരു ലേഖനം, ഒരു കഥ — എല്ലാ ദിവസവും</p>
+  <p class="tagline" id="tagline">ദിവസവും ഒരു കവിത, ഒരു ലേഖനം, ഒരു കഥ</p>
   <nav class="nav" aria-label="പ്രധാന മെനു">
     <a href="#today" data-nav="today">ഇന്ന്</a>
     <a href="#archive" data-nav="archive">ശേഖരം</a>
@@ -33,6 +33,15 @@
   <p>നിങ്ങളുടെ വായനയുടെ കണക്ക് ഈ ബ്രൗസറിൽ മാത്രമാണ് സൂക്ഷിക്കുന്നത്. അക്കൗണ്ട് വേണ്ട.</p>
   <p class="footer-note">വായനയ്ക്ക് സമയം കണ്ടെത്തൂ. ബാക്കി ഇവിടെ കാത്തിരിക്കും.</p>
 </footer>
-<script src="/app.js?v=20261118-fix1"></script>
+<div class="font-widget" id="fontWidget" hidden>
+  <button type="button" class="focus-chip" id="focusBtn" aria-pressed="false">ശ്രദ്ധയോടെ വായിക്കുക</button>
+  <div class="font-pill" role="group" aria-label="അക്ഷര ക്രമീകരണം">
+    <button type="button" id="sizeDown" aria-label="അക്ഷരം ചെറുതാക്കുക">A−</button>
+    <button type="button" id="sizeUp" aria-label="അക്ഷരം വലുതാക്കുക">A+</button>
+    <button type="button" id="leading" aria-label="വരികൾക്കിടയിലെ അകലം മാറ്റുക">വരി അകലം</button>
+  </div>
+</div>
+<button type="button" class="theme-widget" id="themeBtn" aria-pressed="false"><span aria-hidden="true">☾</span> ഇരുട്ടിൽ വായിക്കാം</button>
+<script src="app.js?v=20261118-widgets"></script>
 </body>
 </html>
