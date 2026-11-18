@@ -265,3 +265,7 @@ body[data-theme="dark"] .reading:nth-child(odd){background:rgba(255,255,255,.018
 .theme-chip span{font-size:1rem;margin-right:.15rem}
 .footer{padding-bottom:5.5rem}
 @media(max-width:420px){.font-pill button{min-width:2.5rem;padding:0 .55rem;font-size:.82rem}.theme-chip{font-size:.76rem;padding:.3rem .75rem}}
+
+.inspired{margin:-.75rem 0 1rem;font-size:.78rem;color:var(--ink-2);letter-spacing:.01em}
+.inspired a{color:inherit;text-decoration:underline;text-underline-offset:2px}
+.inspired a:hover{color:var(--accent)}
