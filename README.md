@@ -41,7 +41,7 @@ tools/fetch-texts.mjs   downloads any missing text listed in manifest.json
    - For poems, stanza numbers at the end of a line (after 3 or more spaces) are shown neatly on the right.
 3. Open `content/library.json` and add the file name, without `.txt`, to the end of the right list (`poem`, `essay` or `story`).
 
-**How the schedule works.** Day 1 is `launchDate` (currently 19 November 2026; change it to the day your friends start). On day N the site shows item N from each list, and starts again from the top when a list runs out. Always add to the **end** of a list. Reordering a list changes what past days showed.
+**How the schedule works.** Day 1 is `launchDate` (currently 18 November 2026; change it to the day your friends start). On day N the site shows item N from each list, and starts again from the top when a list runs out. Always add to the **end** of a list. Reordering a list changes what past days showed.
 
 ## Previewing on your computer
 
