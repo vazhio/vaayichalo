@@ -230,7 +230,12 @@
     toolbar.querySelector('[data-leading]').addEventListener('click',()=>updatePrefs({leading:getPrefs().leading>=2.3?1.8:+(getPrefs().leading+.15).toFixed(2)}));
     toolbar.querySelector('[data-theme]').addEventListener('click',()=>updatePrefs({theme:getPrefs().theme==='paper'?'dark':'paper'}));
     const focusOff=()=>{document.body.classList.remove('focus-mode');main.querySelectorAll('.reading').forEach(el=>el.classList.remove('is-focused'));toolbar.querySelector('[data-focus]').hidden=false;toolbar.querySelector('[data-focus-exit]').hidden=true;};
-    toolbar.querySelector('[data-focus]').addEventListener('click',()=>{document.body.classList.add('focus-mode');toolbar.querySelector('[data-focus]').hidden=true;toolbar.querySelector('[data-focus-exit]').hidden=false;});
+    toolbar.querySelector('[data-focus]').addEventListener('click',()=>{
+      document.body.classList.add('focus-mode');
+      toolbar.querySelector('[data-focus]').hidden=true;
+      toolbar.querySelector('[data-focus-exit]').hidden=false;
+      open(TYPES[0],true);
+    });
     toolbar.querySelector('[data-focus-exit]').addEventListener('click',focusOff);
     const open = (type, show) => {
       const box = document.getElementById('text-' + type);
