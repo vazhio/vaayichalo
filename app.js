@@ -68,7 +68,7 @@
   }
   function loadText(id) {
     if (!cache.has(id)) {
-      cache.set(id, fetch('content/texts/' + encodeURIComponent(id) + '.txt')
+      cache.set(id, fetch('content/texts/' + encodeURIComponent(id) + '.txt', { cache: 'no-cache' })
         .then(r => { if (!r.ok) throw new Error('missing ' + id); return r.text(); })
         .then(t => ({ id, ...parseText(t) }))
         .catch(() => ({ id, title: id, author: '', type: '', body: 'ഈ പാഠം കണ്ടെത്താനായില്ല (content/texts/' + id + '.txt).' })));
@@ -391,8 +391,8 @@
 
   async function init() {
     try {
-      LIB = await fetch('content/library.json').then(r => r.json());
-      ALANKARAM = await fetch('content/alankaram.json').then(r => r.ok ? r.json() : []).catch(() => []);
+      LIB = await fetch('content/library.json', { cache: 'no-cache' }).then(r => r.json());
+      ALANKARAM = await fetch('content/alankaram.json', { cache: 'no-cache' }).then(r => r.ok ? r.json() : []).catch(() => []);
     } catch (e) {
       main.innerHTML = '<p class="muted">content/library.json വായിക്കാനായില്ല. README.md നോക്കുക.</p>';
       return;
