@@ -60,27 +60,7 @@
 
   /* ---------- texts ---------- */
   function parseText(raw) {
-    raw = raw.replace(/^﻿/, '').replace(/\r
-  function getPrefs() {
-    const p = store.get(KEY_PREFS, {});
-    return { size: Math.min(1.5, Math.max(.95, Number(p.size) || DEFAULT_PREFS.size)),
-      leading: Math.min(2.5, Math.max(1.6, Number(p.leading) || DEFAULT_PREFS.leading)),
-      theme: ['paper','dark'].includes(p.theme) ? p.theme : 'paper' };
-  }
-  function applyPrefs() {
-    const p=getPrefs();
-    document.documentElement.style.setProperty('--read-size',p.size+'rem');
-    document.documentElement.style.setProperty('--read-leading',p.leading);
-    document.body.dataset.theme=p.theme;
-    const meta=document.querySelector('meta[name="theme-color"]');
-    if(meta) meta.content=p.theme==='dark'?'#191a17':'#f4efe4';
-  }
-  function updatePrefs(change){store.set(KEY_PREFS,{...getPrefs(),...change});applyPrefs();}
-  function updateReadingProgress(){
-    const bar=document.getElementById('readingProgress'); if(!bar)return;
-    const max=document.documentElement.scrollHeight-window.innerHeight;
-    bar.style.width = (max>0?Math.min(100,Math.max(0,window.scrollY/max*100)):0)+'%';
-  }\n?/g, '\n');
+    raw = raw.replace(/^\uFEFF/, '').replace(/\r\n?/g, '\n');
     const cut = raw.indexOf('\n---\n');
     const head = cut >= 0 ? raw.slice(0, cut) : '';
     const meta = {};
@@ -88,6 +68,35 @@
     meta.body = (cut >= 0 ? raw.slice(cut + 5) : raw).trim();
     return meta;
   }
+
+  /* ---------- reader preferences ---------- */
+  function getPrefs() {
+    const p = store.get(KEY_PREFS, {});
+    return {
+      size: Math.min(1.5, Math.max(.95, Number(p.size) || DEFAULT_PREFS.size)),
+      leading: Math.min(2.5, Math.max(1.6, Number(p.leading) || DEFAULT_PREFS.leading)),
+      theme: ['paper', 'dark'].includes(p.theme) ? p.theme : 'paper'
+    };
+  }
+  function applyPrefs() {
+    const p = getPrefs();
+    document.documentElement.style.setProperty('--read-size', p.size + 'rem');
+    document.documentElement.style.setProperty('--read-leading', p.leading);
+    document.body.dataset.theme = p.theme;
+    const meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) meta.content = p.theme === 'dark' ? '#191a17' : '#f4efe4';
+  }
+  function updatePrefs(change) {
+    store.set(KEY_PREFS, { ...getPrefs(), ...change });
+    applyPrefs();
+  }
+  function updateReadingProgress() {
+    const bar = document.getElementById('readingProgress');
+    if (!bar) return;
+    const max = document.documentElement.scrollHeight - window.innerHeight;
+    bar.style.width = (max > 0 ? Math.min(100, Math.max(0, window.scrollY / max * 100)) : 0) + '%';
+  }
+
   function loadText(id) {
     if (!cache.has(id)) {
       cache.set(id, fetch('content/texts/' + encodeURIComponent(id) + '.txt', { cache: 'no-cache' })
