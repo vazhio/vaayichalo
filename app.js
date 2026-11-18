@@ -94,9 +94,8 @@
   }
 
   /* ---------- floating reading widgets ----------
-     #fontWidget (bottom right): font size, line spacing and the focus-mode chip.
-     It only appears while a poem, essay or story is open on a day page.
-     #themeBtn (bottom left): dark / light mode, always available. */
+     #fontWidget (bottom right): dark/light chip above font size and line spacing.
+     It only appears while a poem, essay or story is open on a day page. */
   let reader = null; // set by wireDay: { open(type, show), lastOpened }
   function anyTextOpen() {
     return TYPES.some(t => { const b = document.getElementById('text-' + t); return b && !b.hidden; });
@@ -105,33 +104,11 @@
     const w = document.getElementById('fontWidget');
     if (w) w.hidden = !(reader && anyTextOpen());
   }
-  function setFocusChip(on) {
-    const f = document.getElementById('focusBtn');
-    if (!f) return;
-    f.setAttribute('aria-pressed', String(on));
-    f.textContent = on ? 'സാധാരണ കാഴ്ച' : 'ശ്രദ്ധയോടെ വായിക്കുക';
-  }
-  function focusOff() {
-    document.body.classList.remove('focus-mode');
-    main.querySelectorAll('.reading').forEach(el => el.classList.remove('is-focused'));
-    setFocusChip(false);
-  }
-  function focusOn(type) {
-    if (!type) return;
-    document.body.classList.add('focus-mode');
-    main.querySelectorAll('.reading').forEach(el => el.classList.toggle('is-focused', el.id === 'r-' + type));
-    setFocusChip(true);
-    document.getElementById('r-' + type).scrollIntoView({ block: 'start' });
-  }
   function wireWidgets() {
     document.getElementById('sizeDown').addEventListener('click', () => updatePrefs({ size: Math.max(.95, +(getPrefs().size - .08).toFixed(2)) }));
     document.getElementById('sizeUp').addEventListener('click', () => updatePrefs({ size: Math.min(1.5, +(getPrefs().size + .08).toFixed(2)) }));
     document.getElementById('leading').addEventListener('click', () => updatePrefs({ leading: getPrefs().leading >= 2.3 ? 1.8 : +(getPrefs().leading + .15).toFixed(2) }));
     document.getElementById('themeBtn').addEventListener('click', () => updatePrefs({ theme: getPrefs().theme === 'dark' ? 'paper' : 'dark' }));
-    document.getElementById('focusBtn').addEventListener('click', () => {
-      if (document.body.classList.contains('focus-mode')) focusOff();
-      else if (reader) focusOn(reader.lastOpened || TYPES.find(t => !document.getElementById('text-' + t).hidden));
-    });
   }
   function updatePrefs(change) {
     store.set(KEY_PREFS, { ...getPrefs(), ...change });
@@ -287,9 +264,6 @@
       btn.textContent = show ? 'ചുരുക്കുക' : 'വായിക്കാം';
       if (show) reader.lastOpened = type;
       else if (reader.lastOpened === type) reader.lastOpened = TYPES.find(t => !document.getElementById('text-' + t).hidden) || null;
-      if (document.body.classList.contains('focus-mode')) {
-        if (show) focusOn(type); else focusOff();
-      }
       syncFontWidget();
     };
     reader = { open, lastOpened: null };
@@ -461,7 +435,6 @@
   async function route() {
     const h = location.hash.slice(1) || 'today';
     reader = null;
-    focusOff();
     syncFontWidget();
     const m = h.match(/^d-(\d{4}-\d{2}-\d{2})$/);
     try {
