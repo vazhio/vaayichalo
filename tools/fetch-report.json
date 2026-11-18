@@ -1,6 +1,7 @@
 {
- "checked": "2026-11-18T13:30:02.503Z",
- "written": [
+ "checked": "2026-11-18T13:38:48.863Z",
+ "written": [],
+ "skipped": [
   "kuttiyum-thallayum",
   "jathinirnayam",
   "gramavrikshathile-kuyil",
@@ -71,7 +72,6 @@
   "samvadam-kathayezhuthu-1",
   "samvadam-kathayezhuthu-2"
  ],
- "skipped": [],
  "mismatched": [],
  "failed": []
 }
