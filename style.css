@@ -1,0 +1,232 @@
+/* ആയിരം രാവുകൾ — styles
+   Colours and fonts are set here. Change the values in :root to restyle the site. */
+
+:root {
+  --paper: #fffdf8;
+  --paper-2: #f5f1e8;
+  --ink: #1d1b16;
+  --ink-2: #5b564b;
+  --rule: #1d1b16;
+  --hair: #e3ddd0;
+  --poem: #9b2c2c;
+  --essay: #2b4c7e;
+  --story: #2f6b3a;
+  --accent: #9b2c2c;
+  --measure: 40rem;
+  --ui: "Manjari", "Noto Sans Malayalam", system-ui, sans-serif;
+  --read: "Noto Serif Malayalam", "Rachana", "Manjari", serif;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --paper: #17150f;
+    --paper-2: #221f17;
+    --ink: #ece6d8;
+    --ink-2: #a9a291;
+    --rule: #ece6d8;
+    --hair: #353024;
+    --poem: #e08a7f;
+    --essay: #8fb0e3;
+    --story: #8cc596;
+    --accent: #e08a7f;
+  }
+}
+
+* { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--ui);
+  font-size: 19px;
+  line-height: 1.75;
+}
+
+a { color: inherit; text-underline-offset: 0.2em; text-decoration-thickness: 1px; }
+a:hover { color: var(--accent); }
+
+.skip { position: absolute; left: -9999px; }
+.skip:focus { left: 1rem; top: 1rem; background: var(--ink); color: var(--paper); padding: .4rem .8rem; z-index: 10; }
+
+/* ---------- masthead ---------- */
+.masthead {
+  text-align: center;
+  padding: 2.2rem 1rem 0;
+}
+.brand {
+  font-family: var(--read);
+  font-weight: 700;
+  font-size: clamp(2rem, 7vw, 2.9rem);
+  line-height: 1.3;
+  text-decoration: none;
+}
+.tagline {
+  margin: .3rem 0 1.2rem;
+  color: var(--ink-2);
+  font-size: .95rem;
+}
+.nav {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+  padding: .55rem 0 .35rem;
+}
+.nav a {
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 1rem;
+  padding-bottom: .15rem;
+  border-bottom: 2px solid transparent;
+}
+.nav a[aria-current="page"] { color: var(--accent); border-bottom-color: var(--accent); }
+
+/* ---------- main column ---------- */
+main {
+  max-width: var(--measure);
+  margin: 0 auto;
+  padding: 2rem 1.15rem 3rem;
+  outline: none;
+}
+.loading, .muted { color: var(--ink-2); }
+
+h1.date {
+  font-family: var(--read);
+  font-size: clamp(1.6rem, 5vw, 2.1rem);
+  line-height: 1.4;
+  margin: 0 0 .2rem;
+}
+.dayline { color: var(--ink-2); margin: 0 0 1.5rem; }
+
+/* ---------- challenge panel ---------- */
+.panel {
+  background: var(--paper-2);
+  border-left: 3px solid var(--accent);
+  padding: 1.1rem 1.25rem 1.2rem;
+  margin: 0 0 2rem;
+}
+.panel h2 { font-size: 1.05rem; margin: 0 0 .2rem; }
+.panel p { margin: 0 0 .8rem; color: var(--ink-2); }
+.panel .big { font-family: var(--read); font-weight: 700; font-size: 1.35rem; color: var(--ink); margin: 0 0 .2rem; }
+.btn {
+  font: inherit;
+  font-weight: 700;
+  font-size: 1rem;
+  background: var(--ink);
+  color: var(--paper);
+  border: 0;
+  padding: .65rem 1.2rem .5rem;
+  cursor: pointer;
+}
+.btn:hover { background: var(--accent); }
+.btn.ghost { background: transparent; color: var(--ink); border: 1px solid var(--ink); }
+.btn.ghost:hover { border-color: var(--accent); color: var(--accent); }
+.linkbtn { font: inherit; background: none; border: 0; padding: 0; color: var(--ink-2); text-decoration: underline; text-underline-offset: .2em; cursor: pointer; }
+.linkbtn:hover { color: var(--accent); }
+details summary { cursor: pointer; color: var(--ink-2); }
+details form { margin-top: .6rem; display: flex; gap: .6rem; flex-wrap: wrap; align-items: center; }
+input[type=date], textarea {
+  font: inherit; font-size: 1rem; color: var(--ink); background: var(--paper);
+  border: 1px solid var(--hair); padding: .35rem .5rem;
+}
+textarea { width: 100%; min-height: 6rem; font-family: ui-monospace, monospace; font-size: .85rem; }
+
+.stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: .5rem; margin: 1rem 0 .4rem; }
+.stat { text-align: center; padding: .4rem 0; border-top: 1px solid var(--hair); }
+.stat b { display: block; font-family: var(--read); font-size: 1.4rem; line-height: 1.3; }
+.stat span { font-size: .85rem; color: var(--ink-2); }
+.streakline { margin: .4rem 0 0; color: var(--ink); }
+.streakline small { color: var(--ink-2); }
+.panel-actions { display: flex; gap: 1.2rem; flex-wrap: wrap; margin-top: .9rem; font-size: .9rem; }
+.confirm { margin-top: .8rem; padding: .8rem; border: 1px solid var(--hair); background: var(--paper); }
+.confirm p { color: var(--ink); }
+.confirm .row { display: flex; gap: .6rem; }
+
+/* ---------- readings ---------- */
+.readings { list-style: none; margin: 0; padding: 0; border-top: 2px solid var(--rule); }
+.reading { padding: 1.4rem 0 1.3rem; border-bottom: 1px solid var(--hair); }
+.kind { font-weight: 700; font-size: .95rem; margin: 0; }
+.kind.poem { color: var(--poem); }
+.kind.essay { color: var(--essay); }
+.kind.story { color: var(--story); }
+.reading h2 {
+  font-family: var(--read);
+  font-size: clamp(1.45rem, 4.6vw, 1.85rem);
+  line-height: 1.45;
+  margin: .1rem 0 .15rem;
+  font-weight: 700;
+}
+.byline { color: var(--ink-2); margin: 0 0 .7rem; font-size: .98rem; }
+.row-actions { display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap; }
+.tick { display: inline-flex; align-items: center; gap: .5rem; cursor: pointer; font-size: 1rem; }
+.tick input { width: 1.25rem; height: 1.25rem; accent-color: var(--ink); margin: 0; }
+
+/* ---------- reading text ---------- */
+.text {
+  font-family: var(--read);
+  font-size: 1.12rem;
+  line-height: 1.95;
+  margin: 1.4rem 0 .8rem;
+  padding-top: 1.2rem;
+  border-top: 1px dashed var(--hair);
+}
+.text p { margin: 0 0 1.1em; }
+.text .stanza { margin: 0 0 1.4em; white-space: pre-line; }
+.text .stanza .vn { float: right; color: var(--ink-2); font-family: var(--ui); font-size: .8rem; margin-left: 1rem; }
+.text.poem { font-size: 1.08rem; }
+.note { font-size: .92rem; color: var(--ink-2); font-family: var(--ui); margin: 0 0 1rem; }
+.source { font-size: .9rem; color: var(--ink-2); font-family: var(--ui); }
+.endbar { display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; margin: 1rem 0 .2rem; }
+
+/* ---------- extras ---------- */
+.extra { margin: 2.4rem 0 0; padding-top: 1.2rem; border-top: 2px solid var(--rule); }
+.extra h2 { font-size: 1rem; margin: 0 0 .3rem; color: var(--ink-2); font-weight: 700; }
+.extra h3 { font-family: var(--read); font-size: 1.5rem; margin: 0 0 .3rem; }
+.extra blockquote {
+  font-family: var(--read);
+  white-space: pre-line;
+  margin: .8rem 0;
+  padding-left: 1rem;
+  border-left: 2px solid var(--hair);
+}
+.extra cite { display: block; font-style: normal; font-size: .9rem; color: var(--ink-2); font-family: var(--ui); margin-top: .2rem; }
+.share { margin-top: 2rem; display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; }
+.status { font-size: .9rem; color: var(--ink-2); }
+
+/* ---------- archive ---------- */
+.archive { list-style: none; padding: 0; margin: 1rem 0; border-top: 2px solid var(--rule); }
+.archive li { border-bottom: 1px solid var(--hair); }
+.archive a { display: grid; grid-template-columns: 1.6rem 1fr; gap: .2rem .8rem; padding: .9rem 0; text-decoration: none; }
+.archive .d { font-weight: 700; }
+.archive .t { grid-column: 2; color: var(--ink-2); font-size: .95rem; line-height: 1.6; }
+.dot { width: .9rem; height: .9rem; border-radius: 50%; border: 1.5px solid var(--ink-2); margin-top: .45rem; }
+.dot.partial { background: linear-gradient(90deg, var(--ink-2) 50%, transparent 50%); }
+.dot.full { background: var(--ink); border-color: var(--ink); }
+.legend { font-size: .88rem; color: var(--ink-2); display: flex; gap: 1.2rem; flex-wrap: wrap; align-items: center; }
+.legend .dot { display: inline-block; margin: 0 .35rem 0 0; vertical-align: -1px; }
+
+/* ---------- about ---------- */
+.prose h1 { font-family: var(--read); font-size: 1.9rem; line-height: 1.4; margin: 0 0 1rem; }
+.prose h2 { font-size: 1.15rem; margin: 1.8rem 0 .3rem; }
+.prose p, .prose li { color: var(--ink); }
+.prose blockquote { font-family: var(--read); margin: 1rem 0; padding-left: 1rem; border-left: 3px solid var(--accent); color: var(--ink-2); }
+
+.footer {
+  max-width: var(--measure);
+  margin: 0 auto;
+  padding: 1.2rem 1.15rem 3rem;
+  border-top: 1px solid var(--hair);
+  font-size: .85rem;
+  color: var(--ink-2);
+}
+.footer p { margin: 0 0 .4rem; }
+
+@media (max-width: 480px) {
+  body { font-size: 18px; }
+  .nav { gap: 1.3rem; }
+  .stats { grid-template-columns: repeat(2, 1fr); }
+}

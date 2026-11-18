@@ -1,0 +1,9 @@
+{
+  "name": "aayiram-raavukal-tools",
+  "private": true,
+  "type": "module",
+  "description": "Fetches the public-domain texts listed in content/manifest.json from Malayalam Wikisource.",
+  "dependencies": {
+    "jsdom": "^24.1.0"
+  }
+}
