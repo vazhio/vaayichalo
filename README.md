@@ -1,6 +1,6 @@
-# ആയിരം രാവുകൾ (Aayiram Raavukal): prototype
+# വായിച്ചാലോ? (Shall We Read?): prototype
 
-A daily Malayalam reading site: one poem, one essay and one story every day, plus a forgiving 1,000-day reading tracker. It's modelled on bradburychallenge.org.
+A daily Malayalam reading site: one poem, one essay and one story every day, plus a forgiving 1,000-day reading tracker. It's inspired heavily by bradburychallenge.org.
 
 There is no build step, nothing to install and no database. It's just these files.
 
