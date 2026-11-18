@@ -15,9 +15,14 @@ const UA = 'aayiram-raavukal-reading-site/1.0 (GitHub Actions; public-domain tex
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 
 async function getText(title) {
-  for (let attempt = 1; attempt <= 4; attempt++) {
+  for (let attempt = 1; attempt <= 8; attempt++) {
     try {
       const res = await fetch(API + encodeURIComponent(title), { headers: { 'User-Agent': UA } });
+      if (res.status === 429 || res.status === 503) {
+        const wait = Math.max(Number(res.headers.get('retry-after')) || 0, 10 * attempt) * 1000;
+        if (attempt === 8) throw new Error('HTTP ' + res.status);
+        await sleep(wait); continue;
+      }
       if (!res.ok) throw new Error('HTTP ' + res.status);
       const j = await res.json();
       if (!j.parse) return '';
@@ -26,8 +31,8 @@ async function getText(title) {
       d.querySelectorAll('table').forEach(t => { if (!/[ഀ-ൿ]{20}/.test(t.textContent) || t.querySelector('#headertemplate')) t.remove(); });
       return (d.body.innerText ?? d.body.textContent).replace(/ /g, ' ').replace(/[ \t]+\n/g, '\n').replace(/\n{3,}/g, '\n\n').trim();
     } catch (e) {
-      if (attempt === 4) throw e;
-      await sleep(1500 * attempt);
+      if (attempt === 8) throw e;
+      await sleep(3000 * attempt);
     }
   }
 }
@@ -75,7 +80,7 @@ for (const m of manifest) {
     const { part, ...o } = m.opts || {};
     const parts = [];
     for (const p of m.pages) {
-      if (!pageCache.has(p)) { pageCache.set(p, await getText(p)); await sleep(300); }
+      if (!pageCache.has(p)) { pageCache.set(p, await getText(p)); await sleep(1500); }
       parts.push(clean(pageCache.get(p), o));
     }
     let body = parts.join('\n\n');
@@ -100,4 +105,4 @@ for (const m of manifest) {
 await writeFile('tools/fetch-report.json', JSON.stringify(report, null, 1) + '\n');
 console.log(`written ${report.written.length}, skipped ${report.skipped.length}, mismatched ${report.mismatched.length}, failed ${report.failed.length}`);
 if (report.mismatched.length) console.log('Mismatched:', JSON.stringify(report.mismatched));
-if (report.failed.length) { console.log('Failed:', JSON.stringify(report.failed)); process.exitCode = 1; }
+if (report.failed.length) { console.log('Failed (will be retried on the next run):', JSON.stringify(report.failed)); console.log('::warning::' + report.failed.length + ' texts could not be downloaded this time'); }
